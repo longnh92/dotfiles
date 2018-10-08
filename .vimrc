@@ -18,7 +18,6 @@ Plug 'easymotion/vim-easymotion'
 Plug 'ntpeters/vim-better-whitespace'
 "Plug 'bruno-/vim-ruby-fold'
 Plug 'tpope/vim-rails'
-Plug 'flazz/vim-colorschemes'
 Plug 'kchmck/vim-coffee-script'
 Plug 'jiangmiao/auto-pairs'
 Plug 'Yggdroot/indentLine'
@@ -38,11 +37,13 @@ Plug 'Shougo/neosnippet-snippets'
 Plug 'Shougo/deoplete.nvim', { 'do': function('DoRemote') }
 Plug 'w0rp/ale'
 Plug 'pangloss/vim-javascript'
+Plug 'KeitaNakamura/neodark.vim'
 call plug#end()
 syntax on
 filetype on
 filetype indent on
 filetype plugin on
+set mouse=a
 set hlsearch
 set ai
 set ruler
@@ -68,7 +69,8 @@ set guifont=Droid\ Sans\ Mono\ for\ Powerline\ Plus\ Nerd\ File\ Types:h11
 set background=dark
 set relativenumber
 set bs=2 tabstop=2 shiftwidth=2 softtabstop=2
-colorscheme bubblegum
+colorscheme neodark
+
 " Fix iterm display
 let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
 let &t_SR = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=2\x7\<Esc>\\"
