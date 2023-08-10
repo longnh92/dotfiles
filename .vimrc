@@ -7,16 +7,12 @@ function! DoRemote(arg)
 endfunction
 
 filetype off
-call plug#begin('~/.vim/plugged')
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+call plug#begin()
+Plug 'itchyny/lightline.vim'
+Plug 'maximbaz/lightline-ale'
 Plug 'scrooloose/nerdtree'
-Plug 'ap/vim-css-color'
-Plug 'scrooloose/nerdcommenter'
-Plug 'easymotion/vim-easymotion'
-"Plug 'airblade/vim-gitgutter'
+Plug 'vim-scripts/tComment'
 Plug 'ntpeters/vim-better-whitespace'
-"Plug 'bruno-/vim-ruby-fold'
 Plug 'tpope/vim-rails'
 Plug 'kchmck/vim-coffee-script'
 Plug 'jiangmiao/auto-pairs'
@@ -31,13 +27,14 @@ Plug 'tpope/vim-fugitive'
 Plug 'matze/vim-move'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
-Plug 'vim-scripts/git-time-lapse'
-Plug 'Shougo/neosnippet.vim'
-Plug 'Shougo/neosnippet-snippets'
-Plug 'Shougo/deoplete.nvim', { 'do': function('DoRemote') }
 Plug 'w0rp/ale'
 Plug 'pangloss/vim-javascript'
-Plug 'KeitaNakamura/neodark.vim'
+Plug 'pgdouyon/vim-yin-yang'
+Plug 'morhetz/gruvbox'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'rust-lang/rust.vim'
+Plug 'leafgarland/typescript-vim'
+Plug 'peitalin/vim-jsx-typescript'
 call plug#end()
 syntax on
 filetype on
@@ -69,38 +66,40 @@ set guifont=Droid\ Sans\ Mono\ for\ Powerline\ Plus\ Nerd\ File\ Types:h11
 set background=dark
 set relativenumber
 set bs=2 tabstop=2 shiftwidth=2 softtabstop=2
-colorscheme neodark
+" colorscheme yin
+colorscheme gruvbox
+let g:gruvbox_contrast_dark = 'light'
 
 " Fix iterm display
 let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
 let &t_SR = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=2\x7\<Esc>\\"
 let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
 let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
-"========================================================
-" CONFIG AIRLINE
-"========================================================
-let g:Powerline_symbols = 'fancy'
-let g:airline_powerline_fonts = 1
-let g:airline_symbols = {}
-let g:airline_symbols.space = "\ua0"
-let g:airline_symbols.readonly = 'R'
-let s:spc = g:airline_symbols.space
-let g:airline_symbols.linenr = ''
-let g:airline#extensions#tabline#enabled = 1
-nmap <leader>1 <Plug>AirlineSelectTab1
-nmap <leader>2 <Plug>AirlineSelectTab2
-nmap <leader>3 <Plug>AirlineSelectTab3
-nmap <leader>4 <Plug>AirlineSelectTab4
-nmap <leader>5 <Plug>AirlineSelectTab5
-nmap <leader>6 <Plug>AirlineSelectTab6
-nmap <leader>7 <Plug>AirlineSelectTab7
-nmap <leader>8 <Plug>AirlineSelectTab8
-nmap <leader>9 <Plug>AirlineSelectTab9
-function! AirlineInit()
-  let g:airline_section_a = airline#section#create(['%{toupper(mode())}'])
-  let g:airline_section_b = airline#section#create([''])
-  let g:airline_section_z = airline#section#create(['%3p%%', '|', 'linenr', ':%c '])
-endfunction
+"=======================================================
+" CONFIG LIGHTLINE
+"======================================================
+let g:lightline = {
+      \ 'colorscheme': 'wombat',
+      \ }
+let g:lightline.component_expand = {
+      \  'linter_checking': 'lightline#ale#checking',
+      \  'linter_warnings': 'lightline#ale#warnings',
+      \  'linter_errors': 'lightline#ale#errors',
+      \  'linter_ok': 'lightline#ale#ok',
+      \ }
+
+let g:lightline.component_type = {
+      \     'linter_checking': 'left',
+      \     'linter_warnings': 'warning',
+      \     'linter_errors': 'error',
+      \     'linter_ok': 'left',
+      \ }
+
+let g:lightline.active = {
+      \     'right': [[ 'linter_checking', 'linter_errors', 'linter_warnings', 'linter_ok' ], ['lineinfo', 'percent']],
+      \     'left': [ [ 'mode', 'paste' ], [ 'readonly', 'relativepath', 'modified' ] ],
+      \ }
+
 "========================================================
 " CONFIG ALE
 "========================================================
@@ -113,39 +112,14 @@ let g:ale_fixers = {
       \'ruby': ['rubocop']
       \}
 let g:ale_lint_on_text_changed="never"
-let g:airline#extensions#ale#enabled = 1
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
 let g:ale_echo_msg_format = '[%linter%] %s [%severity%]'
 "let g:ale_set_quickfix = 1
 map <silent> <leader>ln :ALENext<CR>
 map <silent> <leader>lp :ALEPrevious<CR>
-"========================================================
-" CONFIG DEOPLETE
-"========================================================
-set completeopt+=noselect
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#disable_auto_complete = 0
-let g:deoplete#enable_ignore_case = 'ignorecase'
-let g:go_def_mode = "guru"
-if !exists('g:deoplete#omni#input_patterns')
-  let g:deoplete#omni#input_patterns = {}
-endif
-let g:deoplete#sources = {}
-let g:deoplete#sources_ = ['buffer','tag']
-imap <silent><expr><Tab> pumvisible() ? "\<C-n>"
-\ : (neosnippet#jumpable() ? "\<Plug>(neosnippet_jump)"
-\ : (<SID>is_whitespace() ? "\<Tab>"
-\ : deoplete#mappings#manual_complete()))
-smap <silent><expr><Tab> pumvisible() ? "\<C-n>"
-\ : (neosnippet#jumpable() ? "\<Plug>(neosnippet_jump)"
-\ : (<SID>is_whitespace() ? "\<Tab>"
-\ : deoplete#mappings#manual_complete()))
-inoremap <expr><S-Tab>  pumvisible() ? "\<C-p>" : "\<C-h>"
-function! s:is_whitespace() "{{{
-let col = col('.') - 1
-return ! col || getline('.')[col - 1] =~? '\s'
-endfunction "}}}
+map <silent> <leader>lf :ALEFix<CR>
+
 "========================================================
 " CONFIG AUTO PAIR
 "========================================================
@@ -163,19 +137,20 @@ let test#strategy = "neovim"
 " Solve vim ESC delay
 set timeoutlen=1000 ttimeoutlen=0
 if has("autocmd")
-  autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
-  autocmd FileType ruby,eruby let g:rubycomplete_buffer_loading = 1
-  autocmd FileType ruby,eruby let g:rubycomplete_rails = 1
-  autocmd FileType ruby,eruby let g:rubycomplete_classes_in_global = 1
-  autocmd FileType go set tabstop=8 shiftwidth=8 softtabstop=8
-  autocmd FileType xml set equalprg=xmllint\ --format\ -
-  autocmd VimEnter * call AirlineInit()
-  autocmd VimEnter * AirlineTheme bubblegum
-  autocmd BufWritePre * StripWhitespace
-  autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
-  autocmd FileType markdown set textwidth=80
-  autocmd FileType markdown set formatoptions-=t
-  autocmd Filetype cpp setlocal ts=4 sw=4 sts=0 expandtab
+"   autocmd FileType ruby,eruby set omnifunc=rubycomplete#Complete
+"   autocmd FileType ruby,eruby let g:rubycomplete_buffer_loading = 1
+"   autocmd FileType ruby,eruby let g:rubycomplete_rails = 1
+"   autocmd FileType ruby,eruby let g:rubycomplete_classes_in_global = 1
+"   autocmd FileType go set tabstop=8 shiftwidth=8 softtabstop=8
+"   autocmd FileType xml set equalprg=xmllint\ --format\ -
+"   " autocmd VimEnter * call AirlineInit()
+"   " autocmd VimEnter * AirlineTheme bubblegum
+"   autocmd BufWritePre * StripWhitespace
+"   autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
+"   autocmd FileType markdown set textwidth=80
+"   autocmd FileType markdown set formatoptions-=t
+"   autocmd Filetype cpp setlocal ts=4 sw=4 sts=0 expandtab
+  autocmd BufNewFile,BufRead *.slim set syntax=haml
 endif
 let g:webdevicons_enable_ctrlp = 1
 let g:move_key_modifier = 'C'
@@ -193,10 +168,6 @@ endfunction
 
 function! UpdateRubyTags()
   return system('ctags -R --languages=ruby --exclude=.git --exclude=log .')
-endfunction
-
-function! UpdateElixirTags()
-  return system('ctags -R --languages=elixir --exclude=.git --exclude=log .')
 endfunction
 
 " Toogle indents
@@ -219,6 +190,25 @@ function! NumberToggle()
     set relativenumber
   endif
 endfunc
+"========================================================
+" MAPPING COC
+" =======================================================
+let g:coc_global_extensions = ['coc-solargraph']
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
 "========================================================
 " MAPPING FZF
 "========================================================
@@ -244,14 +234,10 @@ map <Leader>ts :TestNearest<CR>
 map <Leader>tl :TestLast<CR>
 map <Leader>ta :TestSuite<CR>
 let test#ruby#rspec#executable = 'bundle exec rspec'
-"========================================================
-" MAPPING EASYMOTION
-"========================================================
-let g:EasyMotion_do_mapping = 0
-let g:EasyMotion_smartcase = 1
-map / <Plug>(easymotion-sn)
-omap / <Plug>(easymotion-tn)
-nmap <silent> <tab> <Plug>(easymotion-w)
+
+" Cusstom search command
+map / :?
+omap / :?
 "========================================================
 " MAPPING EASYALIGN
 "========================================================
@@ -262,7 +248,6 @@ nmap ga <Plug>(EasyAlign)
 "========================================================
 map <silent> gb :Gblame<CR>
 map <silent> ghub :Gbrowse<CR>
-map <silent> gy :call TimeLapse() <cr>
 "========================================================
 " MAPPING MISC
 "========================================================
